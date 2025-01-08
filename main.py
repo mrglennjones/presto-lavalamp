@@ -4,15 +4,15 @@ import random
 import math
 
 # Initialize Presto and PicoGraphics
-presto = Presto(full_res=True)
+presto = Presto(full_res=False)
 display = presto.display  # Get the PicoGraphics display instance
 
 # Screen dimensions
-SCREEN_WIDTH, SCREEN_HEIGHT = 480, 480
+SCREEN_WIDTH, SCREEN_HEIGHT = 240, 240
 
 # Reduced canvas height
-CANVAS_WIDTH, CANVAS_HEIGHT = 20, 70  # Lava column dimensions
-SCALE = 6  # Scale up to fit screen
+CANVAS_WIDTH, CANVAS_HEIGHT = 20, 60  # Lava column dimensions
+SCALE = 3  # Scale up to fit screen
 
 # Center the canvas on the screen
 COLUMN_X = (SCREEN_WIDTH - CANVAS_WIDTH * SCALE) // 2  # Center horizontally
@@ -44,9 +44,9 @@ chrome_colors = [
 
 # Total "lava" area to conserve (5% of the column area)
 COLUMN_AREA = CANVAS_WIDTH * CANVAS_HEIGHT * SCALE**2
-TOTAL_AREA = COLUMN_AREA * 0.05  # Blobs occupy 5% of the column area
-MAX_RADIUS = 15  # Maximum blob radius
-MIN_RADIUS = 5   # Minimum blob radius
+TOTAL_AREA = COLUMN_AREA * 0.55  # Blobs occupy 5% of the column area
+MAX_RADIUS = 65  # Maximum blob radius
+MIN_RADIUS = 12   # Minimum blob radius
 
 # Gravity and buoyancy constants
 GRAVITY = 0.02       # Pulls blobs downward
@@ -57,6 +57,7 @@ HEATING_RATE = 0.02  # Heating rate in the heat zone
 
 # Blob class
 class Blob:
+    @micropython.native
     def __init__(self, x, y, r):
         self.x = x
         self.y = y
@@ -104,8 +105,11 @@ class Blob:
     def split(self):
         # Split large blobs into two smaller ones
         if self.r > MAX_RADIUS * 0.8:
+            '''
             child_area = self.area() / 2
             child_radius = math.sqrt(child_area / math.pi)
+            '''
+            child_radius = self.r * sqrt(0.5)
             self.r = child_radius
             return Blob(
                 self.x + random.uniform(-child_radius, child_radius),
@@ -199,5 +203,7 @@ while True:
 
     # Update the display
     presto.update()
+    #presto.partial_update(40,220,110,10)
+    #presto.partial_update(110,10,40,220)
     time.sleep(0.01)  # Control frame rate
 
